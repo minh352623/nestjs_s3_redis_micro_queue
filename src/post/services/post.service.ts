@@ -1,45 +1,72 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { User } from 'src/user/schemas/user.schema';
 import { CreatePostDto, UpdatePostDto } from '../dto/post.dto';
 import { Post } from '../post.interface';
+import { CategoryRepository } from '../repositories/category.repository';
 import { PostRepository } from '../repositories/post.repository';
 
 @Injectable()
 export class PostService {
-  constructor(private readonly postRepository: PostRepository) {}
-  private lastPostId = 0;
-  private posts: Post[] = [];
+  constructor(
+    private readonly postRepository: PostRepository,
+    private readonly categoryRepository: CategoryRepository,
+  ) {}
 
-  getAllPosts() {
-    return this.posts;
+  async getAllPosts() {
+    return this.postRepository.getByCondition({});
   }
 
-  getPostById(id: number) {
-    const post = this.posts.find((post) => post.id === id);
+  async getPostById(post_id: string) {
+    const post = await this.postRepository.findById(post_id);
     if (post) {
+      await post.populate({ path: 'user', select: '-password' });
       return post;
-    }
-    throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-  }
-
-  replacePost(id: number, post: UpdatePostDto) {
-    const postIndex = this.posts.findIndex((post) => post.id === id);
-    if (postIndex > -1) {
-      this.posts[postIndex] = <Post>post;
-      return post;
-    }
-    throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
-  }
-
-  async createPost(post: CreatePostDto) {
-    return await this.postRepository.create(post);
-  }
-
-  deletePost(id: number) {
-    const postIndex = this.posts.findIndex((post) => post.id === id);
-    if (postIndex > -1) {
-      this.posts.splice(postIndex, 1);
     } else {
-      throw new HttpException('Post not found', HttpStatus.NOT_FOUND);
+      // throw new PostNotFoundException(post_id);
+      throw new HttpException('Post already exists', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async replacePost(post_id: string, data: UpdatePostDto) {
+    return await this.postRepository.findByIdAndUpdate(post_id, data);
+  }
+
+  async createPost(user: User, post: CreatePostDto) {
+    post.user = user._id;
+    const new_post = await this.postRepository.create(post);
+    if (post.categories) {
+      await this.categoryRepository.updateMany(
+        {
+          _id: { $in: post.categories },
+        },
+        {
+          $push: {
+            posts: new_post._id,
+          },
+        },
+      );
+    }
+
+    return new_post;
+  }
+
+  async getByCategory(category_id: string) {
+    return await this.postRepository.getByCondition({
+      categories: {
+        $elemMatch: { $eq: category_id },
+      },
+    });
+  }
+
+  async getByCategories(category_ids: [string]) {
+    return await this.postRepository.getByCondition({
+      categories: {
+        $all: category_ids,
+      },
+    });
+  }
+
+  async deletePost(post_id: string) {
+    return await this.postRepository.deleteOne(post_id);
   }
 }
