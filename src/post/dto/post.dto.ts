@@ -10,6 +10,10 @@ export class CreatePostDto {
   @MinLength(4)
   @IsNotEmpty()
   title: string;
+
+  user: any;
+
+  categories: [string];
 }
 
 export class UpdatePostDto {
