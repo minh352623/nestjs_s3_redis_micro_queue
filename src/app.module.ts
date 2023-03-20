@@ -7,9 +7,17 @@ import { UserModule } from './user/user.module';
 import 'dotenv/config';
 import { APP_FILTER } from '@nestjs/core';
 import { ExceptionLoggerFilter } from './utils/exceptionLogger.filter';
+import { MulterModule } from '@nestjs/platform-express';
+import { CloudinaryModule } from './cloundinay/cloudinary.module';
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGODB_URL),
+    MulterModule.registerAsync({
+      useFactory: () => ({
+        dest: './uploads',
+      }),
+    }),
+    CloudinaryModule,
     PostModule,
     UserModule,
   ],

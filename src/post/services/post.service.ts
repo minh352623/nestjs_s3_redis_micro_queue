@@ -31,8 +31,10 @@ export class PostService {
     return await this.postRepository.findByIdAndUpdate(post_id, data);
   }
 
-  async createPost(user: User, post: CreatePostDto) {
+  async createPost(user: User, post: CreatePostDto, images: any) {
     post.user = user._id;
+    post.images = images;
+
     const new_post = await this.postRepository.create(post);
     if (post.categories) {
       await this.categoryRepository.updateMany(

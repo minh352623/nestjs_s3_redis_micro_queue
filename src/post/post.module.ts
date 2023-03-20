@@ -12,6 +12,8 @@ import { Category, CategorySchema } from './schemas/category.schema';
 import { CategoryService } from './services/category.service';
 import { CategoryRepository } from './repositories/category.repository';
 import { CategoryController } from './controllers/category.controller';
+import { CloudinaryService } from 'src/cloundinay/cloudinary.service';
+import { CloudinaryModule } from 'src/cloundinay/cloudinary.module';
 
 @Module({
   imports: [
@@ -21,8 +23,15 @@ import { CategoryController } from './controllers/category.controller';
     ]),
 
     UserModule,
+    CloudinaryModule,
   ],
   controllers: [PostController, CategoryController],
-  providers: [PostService, PostRepository, CategoryService, CategoryRepository],
+  providers: [
+    PostService,
+    PostRepository,
+    CategoryService,
+    CategoryRepository,
+    CloudinaryService,
+  ],
 })
 export class PostModule {}
