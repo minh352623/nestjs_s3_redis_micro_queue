@@ -14,6 +14,8 @@ export class CreatePostDto {
   user: any;
 
   categories: [string];
+
+  images: any;
 }
 
 export class UpdatePostDto {

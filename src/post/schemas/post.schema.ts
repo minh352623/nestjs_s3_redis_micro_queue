@@ -23,6 +23,9 @@ export class Post extends Document {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }] })
   categories: Category[];
+
+  @Prop()
+  images: [string];
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
