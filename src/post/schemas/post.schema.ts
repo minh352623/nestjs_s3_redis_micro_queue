@@ -26,6 +26,12 @@ export class Post extends Document {
 
   @Prop()
   images: [string];
+
+  @Prop()
+  tags: [String];
+
+  @Prop()
+  numbers: [Number];
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);
