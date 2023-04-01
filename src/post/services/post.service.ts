@@ -4,22 +4,55 @@ import { CreatePostDto, UpdatePostDto } from '../dto/post.dto';
 import { Post } from '../post.interface';
 import { CategoryRepository } from '../repositories/category.repository';
 import { PostRepository } from '../repositories/post.repository';
-
+import { isValidObjectId } from 'mongoose';
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly categoryRepository: CategoryRepository,
   ) {}
-
-  async getAllPosts() {
-    return this.postRepository.getByCondition({});
+  async getAllPosts(page: number, limit: number, start: string) {
+    const count = await this.postRepository.countDocuments({});
+    const count_page = (count / limit).toFixed();
+    const posts = await this.postRepository.getByCondition(
+      {
+        // _id: {
+        //   $gt: isValidObjectId(start) ? start : '000000000000000000000000',
+        // },
+      },
+      null,
+      {
+        sort: {
+          _id: 1, //asc
+        },
+        skip: (page - 1) * limit,
+        limit: Number(limit),
+      },
+    );
+    return { count_page, posts };
   }
 
   async getPostById(post_id: string) {
     const post = await this.postRepository.findById(post_id);
     if (post) {
-      await post.populate({ path: 'user', select: '-password' });
+      await post
+        // .populate({ path: 'user', select: '-password -refreshToken' })
+        // .populate({ path: 'user', select: 'name email' })
+        // .populate('categories')
+        .populate([
+          { path: 'user', select: 'name email' },
+          {
+            path: 'categories',
+            match: {
+              _id: '62fd1a9473adb27682f0f440',
+            },
+            select: 'title',
+            options: { limit: 100, sort: { name: 1 } },
+            // populate: [{
+            //   path: '',
+            // },]
+          },
+        ]);
       return post;
     } else {
       // throw new PostNotFoundException(post_id);
@@ -82,7 +115,7 @@ export class PostService {
       // tags: { $all: ['black', 'blank'] },
       // tags: ['red', 'blank'],
       // tags: { $size: 3 },
-      tags: { $exists: false },
+      tags: { $exists: true },
     });
   }
 }

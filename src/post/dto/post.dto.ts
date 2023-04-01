@@ -23,3 +23,14 @@ export class UpdatePostDto {
   content: string;
   title: string;
 }
+
+export class PaginationPostDto {
+  @IsNotEmpty()
+  page: number;
+
+  @IsNotEmpty()
+  limit: number;
+
+  @IsNotEmpty()
+  start: string;
+}

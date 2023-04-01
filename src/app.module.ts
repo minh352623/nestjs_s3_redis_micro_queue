@@ -9,6 +9,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { ExceptionLoggerFilter } from './utils/exceptionLogger.filter';
 import { MulterModule } from '@nestjs/platform-express';
 import { CloudinaryModule } from './cloundinay/cloudinary.module';
+import { SubscriberModule } from './subscriber/subscriber.module';
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGODB_URL),
@@ -20,6 +21,7 @@ import { CloudinaryModule } from './cloundinay/cloudinary.module';
     CloudinaryModule,
     PostModule,
     UserModule,
+    SubscriberModule,
   ],
   controllers: [AppController],
   providers: [
