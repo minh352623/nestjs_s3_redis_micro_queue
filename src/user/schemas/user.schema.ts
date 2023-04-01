@@ -30,4 +30,7 @@ UserSchema.virtual('posts', {
   localField: '_id',
   foreignField: 'user',
   justOne: false, //1-n => false,1-1 true
+  match: {
+    categories: { $size: 2 },
+  },
 });

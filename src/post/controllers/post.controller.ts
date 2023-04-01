@@ -27,7 +27,11 @@ import {
 } from '@nestjs/platform-express/multer';
 import { CloudinaryService } from 'src/cloundinay/cloudinary.service';
 import { store_config } from 'src/utils/config-store';
-import { CreatePostDto, UpdatePostDto } from '../dto/post.dto';
+import {
+  CreatePostDto,
+  PaginationPostDto,
+  UpdatePostDto,
+} from '../dto/post.dto';
 import { PostService } from '../services/post.service';
 
 @Controller('post')
@@ -39,8 +43,8 @@ export class PostController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get()
-  getAllPost() {
-    return this.postService.getAllPosts();
+  getAllPost(@Query() { page, limit, start }: PaginationPostDto) {
+    return this.postService.getAllPosts(page, limit, start);
   }
 
   @Get(':id')
@@ -55,7 +59,7 @@ export class PostController {
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 50000 }),
+          new MaxFileSizeValidator({ maxSize: 500000 }),
           // new FileTypeValidator({ fileType: 'image/png' }),
         ],
       }),
@@ -87,7 +91,12 @@ export class PostController {
   @UseGuards(AuthGuard('jwt'))
   @Get('user/all')
   async getPostUser(@Req() req: any) {
-    await req.user.populate('posts');
+    await req.user
+      .populate({
+        path: 'posts',
+        // select: 'title',
+      })
+      .execPopulate();
     return req.user.posts;
   }
 
