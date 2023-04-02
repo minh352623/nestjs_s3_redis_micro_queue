@@ -1,4 +1,6 @@
 import {
+  CACHE_MANAGER,
+  CacheInterceptor,
   Controller,
   FileTypeValidator,
   MaxFileSizeValidator,
@@ -8,6 +10,7 @@ import {
   Body,
   Delete,
   Get,
+  Inject,
   Param,
   Post,
   Put,
@@ -33,12 +36,13 @@ import {
   UpdatePostDto,
 } from '../dto/post.dto';
 import { PostService } from '../services/post.service';
-
+import { Cache } from 'cache-manager';
 @Controller('post')
 export class PostController {
   constructor(
     private readonly postService: PostService,
     private cloudinaryService: CloudinaryService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @UseGuards(AuthGuard('jwt'))
@@ -137,5 +141,24 @@ export class PostController {
     @Body() post: CreatePostDto,
   ) {
     return this.postService.createPostByCommand(req.user, post);
+  }
+
+  //cache trên memmory ram khi restart server sẽ mất nên giải pháp sinh ra la redis để tránh mất data vd như tron blacklist
+  @Get(':id/get-with-cache')
+  @UseInterceptors(CacheInterceptor)
+  async getPostDetailWithCache(@Param('id') id: string) {
+    console.log('Run here');
+    return (await this.postService.getPostById(id)).toJSON();
+  }
+
+  @Get('cache/demo/set-cache')
+  async demoSetCache() {
+    await this.cacheManager.set('newnet', 'hello world', { ttl: 60 * 10 });
+    return true;
+  }
+
+  @Get('cache/demo/get-cache')
+  async demoGetCache() {
+    return this.cacheManager.get('newnet');
   }
 }

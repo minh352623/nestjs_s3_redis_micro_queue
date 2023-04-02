@@ -1,0 +1,1 @@
+cache dc lưu ở memory ram tốc độ truy vấn nhanh chi phí cao hơn so với DB
