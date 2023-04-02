@@ -14,7 +14,9 @@ import { CategoryRepository } from './repositories/category.repository';
 import { CategoryController } from './controllers/category.controller';
 import { CloudinaryService } from 'src/cloundinay/cloudinary.service';
 import { CloudinaryModule } from 'src/cloundinay/cloudinary.module';
-
+import { CreatePostHandler } from './handler/createPost.handler';
+import { GetPostHandler } from './handler/getPost.handler';
+import { CqrsModule } from '@nestjs/cqrs';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
@@ -24,6 +26,7 @@ import { CloudinaryModule } from 'src/cloundinay/cloudinary.module';
 
     UserModule,
     CloudinaryModule,
+    CqrsModule,
   ],
   controllers: [PostController, CategoryController],
   providers: [
@@ -32,6 +35,8 @@ import { CloudinaryModule } from 'src/cloundinay/cloudinary.module';
     CategoryService,
     CategoryRepository,
     CloudinaryService,
+    CreatePostHandler,
+    GetPostHandler,
   ],
 })
 export class PostModule {}
