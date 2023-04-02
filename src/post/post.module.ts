@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { PostController } from './controllers/post.controller';
 import { Post, PostSchema } from './schemas/post.schema';
 import { PostService } from './services/post.service';
@@ -17,6 +17,8 @@ import { CloudinaryModule } from 'src/cloundinay/cloudinary.module';
 import { CreatePostHandler } from './handler/createPost.handler';
 import { GetPostHandler } from './handler/getPost.handler';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as redisStore from 'cache-manager-redis-store';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Post.name, schema: PostSchema }]),
@@ -27,6 +29,21 @@ import { CqrsModule } from '@nestjs/cqrs';
     UserModule,
     CloudinaryModule,
     CqrsModule,
+    // CacheModule.register({
+    //   ttl: 10, //second - 10s thì nó mới chạy lại hàm nào có cache
+    // }),
+    CacheModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        // isGlobal: true,
+        store: redisStore as any,
+        host: configService.get<string>('REDIS_HOST'),
+        port: configService.get<number>('REDIS_PORT'),
+        username: configService.get<string>('REDIS_USERNAME'),
+        password: configService.get<string>('REDIS_PASSWORD'),
+      }),
+    }),
   ],
   controllers: [PostController, CategoryController],
   providers: [
