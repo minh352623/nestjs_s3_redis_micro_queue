@@ -114,4 +114,28 @@ export class PostController {
   async getByArray() {
     return this.postService.getByArray();
   }
+
+  @Get(':id/get-by-query')
+  async getDetailByQuery(@Param('id') id: string) {
+    return this.postService.getOneByCommand(id);
+  }
+
+  @Post('create-by-command')
+  @UseGuards(AuthGuard('jwt'))
+  @UseInterceptors(FilesInterceptor('images', 10, store_config))
+  async createByCommand(
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 500000 }),
+          // new FileTypeValidator({ fileType: 'image/png' }),
+        ],
+      }),
+    )
+    images: Array<Express.Multer.File>,
+    @Req() req: any,
+    @Body() post: CreatePostDto,
+  ) {
+    return this.postService.createPostByCommand(req.user, post);
+  }
 }

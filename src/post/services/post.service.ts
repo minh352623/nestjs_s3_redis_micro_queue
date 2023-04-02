@@ -5,11 +5,16 @@ import { Post } from '../post.interface';
 import { CategoryRepository } from '../repositories/category.repository';
 import { PostRepository } from '../repositories/post.repository';
 import { isValidObjectId } from 'mongoose';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../commands/createPost.command';
+import { GetPostQuery } from '../queries/getPost.query';
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly categoryRepository: CategoryRepository,
+    private commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
   async getAllPosts(page: number, limit: number, start: string) {
     const count = await this.postRepository.countDocuments({});
@@ -58,6 +63,14 @@ export class PostService {
       // throw new PostNotFoundException(post_id);
       throw new HttpException('Post already exists', HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async getOneByCommand(post_id: string) {
+    return this.queryBus.execute(new GetPostQuery(post_id));
+  }
+
+  async createPostByCommand(user: User, post: CreatePostDto) {
+    return this.commandBus.execute(new CreatePostCommand(user, post));
   }
 
   async replacePost(post_id: string, data: UpdatePostDto) {
