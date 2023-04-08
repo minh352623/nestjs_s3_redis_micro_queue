@@ -6,7 +6,8 @@ import { AuthService } from '../services/auth.service';
 export class UserController {
   constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(AuthGuard())
+  // @UseGuards(AuthGuard())
+  @UseGuards(AuthGuard('jwt-two-factor'))
   @Get('profile')
   async getProfile(@Req() req: any) {
     return req.user;

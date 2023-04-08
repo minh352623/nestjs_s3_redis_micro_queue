@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { SubscriberController } from './subscriber.controller';
 import { join } from 'path';
+import { RabbitmqService } from 'src/rabbitmq/rabbitmq.service';
 
 @Module({
   imports: [ConfigModule],
@@ -47,6 +48,7 @@ import { join } from 'path';
       },
       inject: [ConfigService],
     },
+    RabbitmqService,
   ],
 })
 export class SubscriberModule {}

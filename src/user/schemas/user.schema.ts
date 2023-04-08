@@ -8,7 +8,7 @@ export class User extends Document {
   _id: MongooseSchema.Types.ObjectId;
 
   @Prop()
-  fullname: string;
+  name: string;
 
   @Prop()
   age: number;
@@ -21,6 +21,11 @@ export class User extends Document {
 
   @Prop()
   refreshToken: string;
+  @Prop()
+  twoFactorAuthenticationSecret: String;
+
+  @Prop({ type: Boolean, default: false })
+  isTwoFactorAuthenticationEnabled: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

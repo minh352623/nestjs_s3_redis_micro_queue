@@ -38,8 +38,19 @@ export class AuthService {
     return user;
   }
 
-  private async _createToken({ email }, refresh = true) {
-    const accessToken = this.jwtService.sign({ email });
+  async getAccess2FA(user) {
+    return this._createToken(user, true);
+  }
+
+  private async _createToken(
+    { email },
+    isSecondFactorAuthenticated = false,
+    refresh = true,
+  ) {
+    const accessToken = this.jwtService.sign({
+      email,
+      isSecondFactorAuthenticated,
+    });
     if (refresh) {
       const refreshToken = this.jwtService.sign(
         { email },
@@ -48,6 +59,7 @@ export class AuthService {
           expiresIn: process.env.EXPIRESIN_REFRESH,
         },
       );
+
       await this.userService.update(
         { email: email },
         {
@@ -77,7 +89,7 @@ export class AuthService {
         refresh_token,
         payload.email,
       );
-      const token = await this._createToken(user, false);
+      const token = await this._createToken(user, true, false);
       return {
         email: user.email,
         ...token,

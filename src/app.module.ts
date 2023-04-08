@@ -10,6 +10,7 @@ import { ExceptionLoggerFilter } from './utils/exceptionLogger.filter';
 import { MulterModule } from '@nestjs/platform-express';
 import { CloudinaryModule } from './cloundinay/cloudinary.module';
 import { SubscriberModule } from './subscriber/subscriber.module';
+import { RabbitmqModule } from './rabbitmq/rabbitmq.module';
 @Module({
   imports: [
     MongooseModule.forRoot(process.env.MONGODB_URL),
@@ -22,6 +23,7 @@ import { SubscriberModule } from './subscriber/subscriber.module';
     PostModule,
     UserModule,
     SubscriberModule,
+    RabbitmqModule,
   ],
   controllers: [AppController],
   providers: [

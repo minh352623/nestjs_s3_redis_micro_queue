@@ -10,6 +10,9 @@ import { UserRepository } from './repositories/user.repository';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthService } from './services/auth.service';
 import { AuthController } from './controllers/auth.controller';
+import { TwoFactorAuthenticationService } from './services/twoFactorAuthentication.service';
+import { JwtTwoFactorStrategy } from './jwtTwoFactor.strategy';
+import { TwoFactorAuthenticationController } from './controllers/twoFactorAuthentication.controller';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
@@ -21,8 +24,19 @@ import { AuthController } from './controllers/auth.controller';
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
   ],
-  providers: [UserService, UserRepository, JwtStrategy, AuthService],
-  controllers: [UserController, AuthController],
+  providers: [
+    UserService,
+    UserRepository,
+    JwtStrategy,
+    AuthService,
+    TwoFactorAuthenticationService,
+    JwtTwoFactorStrategy,
+  ],
+  controllers: [
+    UserController,
+    AuthController,
+    TwoFactorAuthenticationController,
+  ],
   exports: [JwtStrategy],
 })
 export class UserModule {}
